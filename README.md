@@ -1,4 +1,4 @@
-# Cloud-portofolio
+1. # Cloud-portofolio
 ## Azure VM Deployment with NSG and Backup
 
 ### Objective
@@ -20,7 +20,7 @@ Deploy a secure Windows VM in Azure with attached storage, NSG, and backup confi
 - Configuring security rules
 - Managing storage
 - Backup setup using Recovery Services Vault
-# Project: Azure VM Auto-Shutdown with Email Notification
+2. # Project: Azure VM Auto-Shutdown with Email Notification
 
 ## 🔹 Objective
 Save costs by automatically shutting down Azure VMs after work hours and notifying the administrator via email using Logic Apps.
@@ -41,3 +41,6 @@ Save costs by automatically shutting down Azure VMs after work hours and notifyi
 $rg = "Myfirstproject"
 $vmName = "1stVirtualMachi"
 Stop-AzVM -ResourceGroupName $rg -Name $vmName -Force
+
+
+
