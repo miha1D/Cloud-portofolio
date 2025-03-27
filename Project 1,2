@@ -31,12 +31,12 @@ Save costs by automatically shutting down Azure VMs after work hours and notifyi
 - Logic Apps
 - Azure Monitor (optional)
 
-## 🔁 Workflow
+##  Workflow
 1. Automation Runbook shuts down the VM
 2. Logic App sends an email to notify shutdown status
 3. (Optional) Azure Monitor tracks if shutdown fails
 
-## 💻 PowerShell Script (Runbook)
+##  PowerShell Script (Runbook)
 ```powershell
 $rg = "Myfirstproject"
 $vmName = "1stVirtualMachi"
