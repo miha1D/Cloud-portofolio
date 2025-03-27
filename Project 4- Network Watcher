@@ -1,0 +1,39 @@
+# Project: Azure Network Watcher – VM Connectivity Troubleshooting
+
+## Summary
+
+This project demonstrates how to use **Azure Network Watcher** to diagnose and understand **network connectivity issues** for an Azure Virtual Machine (VM).  
+Tools used include **IP Flow Verify**, **Connection Troubleshoot**, and **Next Hop** to simulate real-world troubleshooting scenarios.
+
+---
+
+##  What This Project Does
+
+IP Flow Verify** | Checks if a specific port (like 3389) is **allowed or blocked** by NSG rules.
+**Connection Troubleshoot** | Tests if the VM can **successfully connect** to an external IP and port
+**Next Hop** | Shows where **outbound traffic from the VM** is going next (internet, firewall, etc.)
+
+---
+
+##  Tools Used
+- Azure Network Watcher
+- Azure Virtual Machine (existing from Project 1)
+- NSG (Network Security Group)
+- Public IP (from local machine)
+
+---
+
+##  What I Did
+
+1. **Enabled Network Watcher** in the VM’s region
+2. Used **IP Flow Verify** to check if RDP (port 3389) was allowed to my VM from my IP
+3. Used **Connection Troubleshoot** to simulate my VM connecting to `8.8.8.8` on port `53`
+4. Used **Next Hop** to trace outbound routing from my VM to the internet
+
+---
+
+##  What I Learned
+- How to check if a port is open or blocked without logging into the VM
+- How to simulate real network issues using Azure’s built-in tools
+- How Azure NSG rules and route tables affect VM traffic flow
+
