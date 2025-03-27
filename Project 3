@@ -1,0 +1,80 @@
+# Project: Azure Static Website Hosting
+
+## Overview
+Deployed a static HTML website using Azure Storage Account’s static website feature.
+
+## Tools Used
+- Azure Storage Account (Blob Service)
+- Static website hosting
+- HTML
+
+## Steps
+1. Created storage account
+2. Enabled static website hosting
+3. Uploaded `index.html` to `$web` container
+4. Accessed the site via public endpoint
+
+## What I Learned
+- Blob container behavior and public access
+- Hosting static content directly from cloud
+- Azure's simple but powerful hosting options
+
+Steps:
+
+Step 1: Created a Storage Account for Hosting
+
+I went into the Azure Portal and created a new Storage Account:
+
+    Name: mystaticweb[uniqueid]
+
+    Region: same as my other Azure resources
+
+    Performance: Standard
+
+    Redundancy: Locally Redundant Storage (LRS)
+
+     I enabled the static website hosting option during setup
+
+After reviewing all settings, I created the storage account.
+ Step 2: Enabled Static Website Hosting
+
+Once the Storage Account was ready:
+
+    I navigated to the Static Website blade
+
+    Switched it to Enabled
+
+    Set the Index document name to index.html
+
+    Left the error page blank
+
+    Saved the configuration
+
+Azure then generated a public endpoint URL where the static site would be available.
+Step 3: Uploaded Web Content
+
+Next, I:
+
+    Went to the $web container
+
+    Uploaded a simple index.html file with the following content:
+
+"<!DOCTYPE html>
+<html>
+<head>
+  <title>Hello from Azure</title>
+</head>
+<body>
+  <h1>My Azure Static Website</h1>
+  <p>Deployed from an Azure Storage Account </p>
+</body>
+</html>"
+
+After uploading, I opened the Primary Endpoint URL provided by Azure — and the site was live instantly.
+ What I Learned:
+
+    How Azure Storage Accounts can be used for low-cost website hosting
+
+    How to configure and manage public access to Blob containers
+
+    The basics of hosting a static site serverlessly on Azure
