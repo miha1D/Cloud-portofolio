@@ -1,112 +1,81 @@
-Azure Virtual Network (VNet) Lab Project
+# Azure VNet and VM Connectivity Lab 
 
- Project Title
+This lab simulates a real-world Azure network setup with:
+- Two subnets
+- Two VMs
+- A custom NSG
+- RDP and Ping access control
 
-Secure Multi-Tier Azure VNet Lab with Two VMs (Public & Private)
+##  What I Did
 
- Objective
+- Created a Virtual Network with two subnets: `web-subnet` and `db-subnet`
+- Deployed two Windows Server 2019 VMs in separate subnets
+- Created and associated a custom Network Security Group (NSG)
+- Enabled RDP and ICMP rules in both NSG and Windows Firewall
+- Verified internal and remote connectivity via:
+  - RDP
+  - Bastion
+  - Ping (ICMP)
+  - Test-NetConnection
 
-To build a realistic Azure network environment using:
+## Technologies Used
 
-A custom VNet with two subnets (web + db)
+- Azure Virtual Network
+- Azure Network Security Groups
+- Azure VM (Windows Server 2019)
+- Azure CLI + PowerShell
 
-NSGs to control access
+##  Key Learnings
 
-One public-facing VM (RDP access)
+- How subnet isolation works inside VNets
+- NSG association is **critical** for access rules to apply
+- Windows Firewall can block traffic even when NSG allows it
+- Difference between public vs private IP access
 
-One private-only VM (internal access only)
+Steps: 
+Azure Networking Lab - Full Project Guide
+1. Create a Virtual Network and Subnets (Portal)
+ Go to Azure Portal > Virtual Networks > Create a new VNet
+ Name: VnetforProject
+ Address space: 10.0.0.0/16 - **In my environment**
+ Create two subnets:
+- web-subnet (10.0.1.0/24)
+- db-subnet (10.0.2.0/24)
+ No NSG assigned yet during creation.
+2. Create Network Security Group (NSG)
+ NSG Name: NSGforMyNewProject
+ Resource Group: VnetSubnetVMProject
+ Inbound Rule: Allow RDP (3389) from Any
+ Priority: 1000, Protocol: TCP, Source: Any, Destination Port: 3389
+3. Associate NSG to Subnets
+ Go to Virtual Network > Subnets > web-subnet and db-subnet
+ Edit each and attach NSGforMyNewProject
+4. Create Virtual Machines
+ VM 1: VM2019Datacentr (in web-subnet)
+ VM 2: DB-VM (in db-subnet)
+ Both using Windows Server 2019 Datacenter
+ Public IP assigned for RDP
+ Selected the appropriate subnet during VM creation
+5. Issue: Could Not RDP Even With NSG Rule
+ NSG had correct rule but wasn't associated to subnet or NIC
+ Fix: Associated NSG to the subnet
+6. Issue: Could Not Ping Between VMs
+ NSG by default blocks ICMP
+ Windows Firewall also blocks ping
+ Fix: Created custom NSG rule to allow ICMP
+ Also enabled ICMP inside the VM using PowerShell
+7. Commands Used (CLI + PowerShell)
+PowerShell inside VM:
+Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
+Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+Restart-Service TermService -Force
+New-NetFirewallRule -DisplayName "Allow ICMPv4-In" -Protocol ICMPv4 -Direction Inbound -Action Allow
 
- Architecture Overview
+Azure CLI to create ICMP rule:
+az network nsg rule create --resource-group VnetSubnetVMProject --nsg-name NSGforMyNewProject --name AllowICMPInbound --priority 1010 --direction Inbound --access Allow --protocol Icmp --source-address-prefix 10.0.0.0/16 --destination-address-prefix "*" --description "Allow ICMP Ping"
+8. Final Testing Steps
+ From VM1: ping 10.0.2.4
+ From VM2: ping 10.0.1.4
+ Test-NetConnection for RDP on 3389 also successful
+ Bastion also used as a backup method during testing
 
-Resource Group: vnet-demo-rg
-|
-├── VNet: vnet-demo (10.0.0.0/16)
-│   ├── Subnet: web-subnet (10.0.1.0/24)
-│   └── Subnet: db-subnet  (10.0.2.0/24)
-|
-├── NSG: web-subnet_nsg (Allows RDP)
-│   └── Applied to web-subnet
-|
-├── VM: web-vm (Windows Server 2019)
-│   └── Public IP: Yes
-|
-└── VM: db-vm (Ubuntu LTS)
-    └── Public IP: No (private only)
-
- Step-by-Step Summary
-
- 1. Create Resource Group
-
-az group create --name vnet-demo-rg --location westus
-
-Creates a container for all related resources.
-
- 2. Create Virtual Network + 1st Subnet
-
-az network vnet create \
-  --resource-group vnet-demo-rg \
-  --name vnet-demo \
-  --address-prefix 10.0.0.0/16 \
-  --subnet-name web-subnet \
-  --subnet-prefix 10.0.1.0/24
-
- 3. Add Second Subnet (db-subnet)
-
-Done manually in Azure Portal:
-
-Subnet name: db-subnet
-
-Address range: 10.0.2.0/24
-
- 4. Create NSG for web-subnet
-
-az network nsg create \
-  --resource-group vnet-demo-rg \
-  --name web-subnet_nsg
-
-Then add RDP rule:
-
-az network nsg rule create \
-  --resource-group vnet-demo-rg \
-  --nsg-name web-subnet_nsg \
-  --name allow-rdp \
-  --protocol tcp \
-  --priority 1000 \
-  --destination-port-range 3389 \
-  --access allow
-
- 5. Attach NSG to web-subnet
-
-Done in portal:
-
-Go to vnet-demo > Subnets > web-subnet
-
-Attach web-subnet_nsg
-
- 6. Create web-vm
-
-Region: West US
-
-Subnet: web-subnet
-
-Public IP: Yes
-
-NIC NSG: None (subnet NSG already attached)
-
-RDP enabled
-
- 7. Create db-vm (Private VM)
-
-Subnet: db-subnet
-
-Public IP: No
-
-NIC NSG: None (private access only)
-
- 8. Test Private Connectivity
-
-RDP into web-vm using Public IP
-
-Use ping <db-vm-private-ip> to confirm VNet routing works
-
-Or: Test-NetConnection <db-vm-private-ip> -Port 22
