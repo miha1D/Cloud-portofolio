@@ -1,0 +1,112 @@
+Azure Virtual Network (VNet) Lab Project
+
+ Project Title
+
+Secure Multi-Tier Azure VNet Lab with Two VMs (Public & Private)
+
+ Objective
+
+To build a realistic Azure network environment using:
+
+A custom VNet with two subnets (web + db)
+
+NSGs to control access
+
+One public-facing VM (RDP access)
+
+One private-only VM (internal access only)
+
+ Architecture Overview
+
+Resource Group: vnet-demo-rg
+|
+├── VNet: vnet-demo (10.0.0.0/16)
+│   ├── Subnet: web-subnet (10.0.1.0/24)
+│   └── Subnet: db-subnet  (10.0.2.0/24)
+|
+├── NSG: web-subnet_nsg (Allows RDP)
+│   └── Applied to web-subnet
+|
+├── VM: web-vm (Windows Server 2019)
+│   └── Public IP: Yes
+|
+└── VM: db-vm (Ubuntu LTS)
+    └── Public IP: No (private only)
+
+ Step-by-Step Summary
+
+ 1. Create Resource Group
+
+az group create --name vnet-demo-rg --location westus
+
+Creates a container for all related resources.
+
+ 2. Create Virtual Network + 1st Subnet
+
+az network vnet create \
+  --resource-group vnet-demo-rg \
+  --name vnet-demo \
+  --address-prefix 10.0.0.0/16 \
+  --subnet-name web-subnet \
+  --subnet-prefix 10.0.1.0/24
+
+ 3. Add Second Subnet (db-subnet)
+
+Done manually in Azure Portal:
+
+Subnet name: db-subnet
+
+Address range: 10.0.2.0/24
+
+ 4. Create NSG for web-subnet
+
+az network nsg create \
+  --resource-group vnet-demo-rg \
+  --name web-subnet_nsg
+
+Then add RDP rule:
+
+az network nsg rule create \
+  --resource-group vnet-demo-rg \
+  --nsg-name web-subnet_nsg \
+  --name allow-rdp \
+  --protocol tcp \
+  --priority 1000 \
+  --destination-port-range 3389 \
+  --access allow
+
+ 5. Attach NSG to web-subnet
+
+Done in portal:
+
+Go to vnet-demo > Subnets > web-subnet
+
+Attach web-subnet_nsg
+
+ 6. Create web-vm
+
+Region: West US
+
+Subnet: web-subnet
+
+Public IP: Yes
+
+NIC NSG: None (subnet NSG already attached)
+
+RDP enabled
+
+ 7. Create db-vm (Private VM)
+
+Subnet: db-subnet
+
+Public IP: No
+
+NIC NSG: None (private access only)
+
+ 8. Test Private Connectivity
+
+RDP into web-vm using Public IP
+
+Use ping <db-vm-private-ip> to confirm VNet routing works
+
+Or: Test-NetConnection <db-vm-private-ip> -Port 22
