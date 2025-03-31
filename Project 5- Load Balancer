@@ -1,0 +1,81 @@
+Created a Resource Group
+
+rg-loadbalancer-demo
+Created a Virtual Network (VNet) + Subnet
+
+The network where our VMs will "live" and communicate privately.
+
+lb-demo-vnet (10.2.0.0/16)
+web-subnet (10.2.1.0/24)
+
+Created Two VMs
+
+Both are Windows Server 2019.
+
+WebVM1 and WebVM2
+
+No public IPs — accessed only via Load Balancer or Bastion
+
+Installed IIS (Web Server Role)
+
+To make each VM act as a basic website.
+
+Install-WindowsFeature -Name Web-Server -IncludeManagementTools
+
+We created a home page:
+
+echo "Hello from WebVM1" > C:\inetpub\wwwroot\index.html
+
+Did same for WebVM2 with different message.
+Created a Load Balancer (Public)
+
+The middleman — takes public requests and sends them to WebVM1 or WebVM2.
+
+We picked Standard SKU
+
+Gave it a static public IP
+
+Added a Backend Pool
+
+This is where we tell the Load Balancer:
+
+    “Here are the machines (NICs) you should send traffic to.”
+
+Added both WebVMs’ NICs.
+ Created a Health Probe
+
+This checks:
+
+“Is WebVM1 alive and working? Is WebVM2 still up?”
+
+It hits port 80 on each VM every 5 seconds.
+Created a Load Balancer Rule
+
+The final magic:
+
+“Hey Load Balancer, when someone connects to port 80, send it to the backend VMs.”
+
+Settings used:
+
+Protocol: TCP
+
+Frontend port: 80
+
+Backend port: 80
+
+Health probe: HTTP probe
+
+Firewall + NSG Fixes
+
+We had to manually allow port 80 inside Windows:
+
+New-NetFirewallRule -DisplayName "Allow HTTP Inbound" -Direction Inbound -Protocol TCP -LocalPort 80 -Action Allow
+
+Because NSG controls the network, but the Windows Firewall controls what the OS accepts.
+What I have  Learned from This Project
+
+Load Balancing	Traffic splits between VMs to prevent overload
+Health Monitoring	Probes decide if a VM should get traffic
+Firewall Troubleshooting	Fixed internal block on port 80
+IIS Web Server Setup	Hosted simple pages on Azure Windows VMs
+NSG + Windows FW	Understood layered security
